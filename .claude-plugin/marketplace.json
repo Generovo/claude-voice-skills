@@ -1,0 +1,25 @@
+{
+  "name": "generovo-voice",
+  "owner": {
+    "name": "Generovo",
+    "email": "youssef@generovo.com",
+    "url": "https://github.com/Generovo"
+  },
+  "plugins": [
+    {
+      "name": "claude-voice-skills",
+      "source": ".",
+      "description": "Voice agents (gpt-realtime-2), live translation (gpt-realtime-translate), and streaming transcription (gpt-realtime-whisper) — runnable examples for SIP/Twilio, WhatsApp, Web/WebRTC, mobile, meeting bots. TypeScript + Python.",
+      "version": "1.0.0",
+      "category": "ai",
+      "tags": [
+        "voice",
+        "openai",
+        "realtime",
+        "voicebot",
+        "twilio",
+        "whatsapp"
+      ]
+    }
+  ]
+}

@@ -1,78 +1,149 @@
-# AgentVocalOpco — OpenAI Realtime Voice Skills
+# claude-voice-skills
 
-Three Claude Code skills for building voicebots, live translation, and streaming transcription using OpenAI's May 2026 Realtime API models.
+> Plugin Claude Code de **Generovo** — trois skills pour construire des voicebots avec l'API OpenAI Realtime (release du 7 mai 2026).
 
-## What this is
+[![Validation](https://img.shields.io/badge/validation-passing-green)]() [![Skills](https://img.shields.io/badge/skills-3-blue)]() [![License](https://img.shields.io/badge/license-MIT-lightgrey)]()
 
-This repo holds:
-- The **design** for 3 voice skills (`docs/plans/`)
-- The **research snapshot** of the OpenAI Realtime API as of 2026-05-11 (`docs/research/`)
-- **Mirror copies** of the live skills (`skills-mirror/`) — version-controlled snapshots of the skills installed at `~/.claude/skills/voice-*/`
+## Skills inclus
 
-The skills themselves run from `~/.claude/skills/voice-{agent-realtime,translate-live,transcribe-stream}/`.
+| Skill | Modèle OpenAI | Cas d'usage | Tarif |
+|---|---|---|---|
+| `voice-agent-realtime` | `gpt-realtime-2` | Voicebots, callbots, assistants vocaux avec tool calling | $32 in / $64 out par 1M tokens audio |
+| `voice-translate-live` | `gpt-realtime-translate` | Traduction vocale live (70+ in / 13 out) | $0.034/min |
+| `voice-transcribe-stream` | `gpt-realtime-whisper` | Transcription streaming basse latence | $0.017/min |
 
-## Quick start
+Chaque skill ship :
+- `SKILL.md` — when to use, when not, session lifecycle, connection patterns
+- `references/` — catalogue d'événements, pricing, latency tuning
+- `examples/` — code TypeScript (Next.js 16 + React 19 + WebRTC) + Python (FastAPI + Twilio / WhatsApp / Recall.ai)
+- `scripts/` — utilitaires de latency et eval testés en TDD
+- `templates/` (voice-agent uniquement) — prompt système bilingue paramétré
+
+## Installation (collaborateurs Generovo)
+
+### Une fois par machine
 
 ```bash
-# Source the env (Azure or OpenAI direct key)
-set -a && source .env && set +a
+# Ajoute la marketplace Generovo (une seule fois)
+/plugin marketplace add Generovo/claude-voice-skills
 
-# On macOS, also export the cert bundle (Python stdlib cert fix)
+# Installe le plugin
+/plugin install claude-voice-skills@generovo-voice
+```
+
+Les 3 skills sont automatiquement disponibles dans toutes tes sessions Claude Code. Pas besoin de redémarrer.
+
+### Vérification
+
+Tape une demande dans Claude Code :
+
+> "Construis un voicebot WhatsApp qui prend des réservations"
+
+Claude doit annoncer qu'il charge `voice-agent-realtime`. Si tu demandes une traduction live ou des sous-titres, il chargera les autres skills.
+
+### Mise à jour
+
+```bash
+/plugin update claude-voice-skills
+```
+
+## Configuration
+
+Les exemples de code utilisent ces variables d'env (à mettre dans le `.env` de ton projet voicebot, jamais dans le plugin) :
+
+```bash
+# Authentification OpenAI
+OPENAI_API_KEY=sk-proj-...
+OPENAI_MODEL=gpt-realtime-2          # défaut
+
+# Twilio (si tu utilises les bridges téléphoniques)
+TWILIO_AUTH_TOKEN=...
+PUBLIC_WS_URL=wss://<tunnel>/media
+
+# WhatsApp Cloud API (si tu utilises whatsapp-call.py)
+WHATSAPP_ACCESS_TOKEN=...
+WHATSAPP_PHONE_NUMBER_ID=...
+WHATSAPP_VERIFY_TOKEN=...
+WHATSAPP_APP_SECRET=...
+
+# Recall.ai (si tu utilises meeting-bot.py)
+RECALL_API_KEY=...
+```
+
+**macOS uniquement** : si tu lances les scripts Python depuis une session Claude Code sur Mac, exporte :
+```bash
 export SSL_CERT_FILE=$(python3 -m certifi)
+```
+(Sinon SSL handshake échoue avec le Python système.)
 
-# Verify all skills are valid
+## Important — Modèles V2 et headers HTTP
+
+Les 3 modèles V2 (announce 7 mai 2026) sont **GA-only**. **NE PAS envoyer** le header `OpenAI-Beta: realtime=v1` — il route vers la beta API qui n'a pas V2. Les exemples du plugin sont déjà nettoyés. Détails dans [docs/research/smoke-findings-2026-05-11.md](docs/research/smoke-findings-2026-05-11.md).
+
+## Triggers (comment Claude Code charge le bon skill)
+
+| Tu demandes... | Skill chargé |
+|---|---|
+| « callbot téléphonique qui prend des RDV » | `voice-agent-realtime` |
+| « assistant vocal WhatsApp avec function calling » | `voice-agent-realtime` |
+| « traduction live FR↔AR pour un appel commercial » | `voice-translate-live` |
+| « interprète automatique pour une vidéo YouTube live » | `voice-translate-live` |
+| « sous-titres live pour un meeting Zoom » | `voice-transcribe-stream` |
+| « transcription temps réel des appels du call center » | `voice-transcribe-stream` |
+
+Les descriptions de skills sont structurées pour éviter les chevauchements. Chaque SKILL.md a une section explicite « When NOT to use » qui redirige vers les bons skills voisins.
+
+## Pour contribuer
+
+```bash
+git clone https://github.com/Generovo/claude-voice-skills.git
+cd claude-voice-skills
+
+# Validation locale
 bash scripts/validate-skills.sh
 # → ALL SKILLS VALID
 
-# Unit tests across all 3 skills
+# Unit tests
 for s in voice-agent-realtime voice-translate-live voice-transcribe-stream; do
-  (cd ~/.claude/skills/$s/scripts && python3 -m pytest -q)
+  (cd skills/$s/scripts && python3 -m pytest -q)
 done
 # → 28 passed total
 ```
 
-## Skills overview
+Structure du repo :
 
-| Skill | Model | Use case | Pricing |
-|---|---|---|---|
-| `voice-agent-realtime` | `gpt-realtime-2` | Voicebots, callbots, vocal assistants with tool calling | $32 in / $64 out per 1M audio tokens |
-| `voice-translate-live` | `gpt-realtime-translate` | Live voice translation (70+ in / 13 out) | $0.034/min |
-| `voice-transcribe-stream` | `gpt-realtime-whisper` | Streaming low-latency transcription | $0.017/min |
+```
+claude-voice-skills/
+├── .claude-plugin/
+│   ├── plugin.json           # Manifest du plugin
+│   └── marketplace.json      # Marketplace generovo-voice
+├── skills/                   # Les 3 skills
+│   ├── voice-agent-realtime/
+│   ├── voice-translate-live/
+│   └── voice-transcribe-stream/
+├── scripts/
+│   └── validate-skills.sh    # Harness de validation
+├── docs/
+│   ├── plans/                # Design + plan d'implémentation
+│   └── research/             # Snapshot API OpenAI 2026-05-11
+└── README.md
+```
 
-Each skill ships:
-- `SKILL.md` — when to use, when not to use, model overview, session lifecycle, connection patterns
-- `references/` — exhaustive event catalog, pricing math, tuning profiles
-- `examples/` — runnable TypeScript (Next.js + React 19 + WebRTC) and Python (FastAPI + Twilio / WhatsApp / Recall.ai)
-- `scripts/` — TDD-tested latency & quality measurement scripts
-- `templates/` (voice-agent only) — parametrized system prompt for voicebots
+## État
 
-## Channels covered (per skill, where applicable)
+- ✅ 3 skills `ALL SKILLS VALID` côté harness
+- ✅ 28/28 unit tests verts (TDD : latency, eval-prompt, translation-quality, latency-vs-quality)
+- ✅ Smoke réel validé sur `gpt-realtime-2` : TTFA ~700-800ms, round-trip complet
+- ✅ tsc + py_compile clean pour tous les exemples
+- ✅ Compatible Python 3.12+ / Node 24+
 
-- **Web / Mobile** — WebRTC client examples
-- **Telephony** — Twilio Media Streams bridge
-- **WhatsApp** — Cloud API voice notes + BSP relay pattern note
-- **Meeting bots** — Recall.ai pattern (Zoom/Meet/Teams via single SDK)
-
-## Status
-
-- ✅ All 3 skills loadable by Claude Code
-- ✅ All 3 SKILL.md pass frontmatter + reference-link checks
-- ✅ All Python examples compile (`py_compile`)
-- ✅ All TS examples type-check (`tsc --noEmit`)
-- ✅ 28/28 unit tests pass (TDD-built scripts: latency, eval-prompt, translation-quality, latency-vs-quality)
-- ✅ Real API smoke validated against `gpt-realtime-2` : TTFA ~700-800ms sub-secondaire au reasoning level `low`. Set `OPENAI_MODEL=gpt-realtime-2` dans `.env` — les 3 modèles V2 sont **GA dispo immédiatement** (correction de la note initiale — voir [smoke-findings](docs/research/smoke-findings-2026-05-11.md)).
-- ⚠️ Important : NE PAS envoyer le header `OpenAI-Beta: realtime=v1` pour les modèles V2 (ils sont sur la GA API). Tous les scripts/exemples ont été nettoyés.
-
-## Security notes
-
-- **Rotate the API keys** that were shared in this session's chat history:
-  - Azure: regenerate KEY 2 on `myvoiceagents` resource via Azure Portal.
-  - OpenAI: revoke the `sk-proj-...` key and create a fresh one.
-- `.env` is in `.gitignore` and never committed. The mirror in `skills-mirror/` contains no secrets.
-
-## Docs
+## Liens
 
 - [Design doc](docs/plans/2026-05-11-openai-realtime-voice-skills-design.md)
 - [Implementation plan](docs/plans/2026-05-11-openai-realtime-voice-skills.md)
-- [API research snapshot](docs/research/openai-realtime-api-2026-05-11.md)
-- [Smoke findings](docs/research/smoke-findings-2026-05-11.md)
+- [API research snapshot (2026-05-11)](docs/research/openai-realtime-api-2026-05-11.md)
+- [Smoke findings (V2 GA gotchas)](docs/research/smoke-findings-2026-05-11.md)
+
+## Licence
+
+MIT — voir [LICENSE](LICENSE).

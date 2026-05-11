@@ -2,7 +2,18 @@
 # scripts/validate-skills.sh — sanity-check all 3 voice skills
 
 set -uo pipefail
-SKILLS_ROOT="$HOME/.claude/skills"
+# Plugin repo layout: skills/ alongside this script's parent dir.
+# Otherwise fall back to the user-installed skills location.
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -d "$HERE/../skills" ]; then
+  SKILLS_ROOT="$HERE/../skills"
+elif [ -d "$HOME/.claude/skills" ]; then
+  SKILLS_ROOT="$HOME/.claude/skills"
+else
+  echo "Cannot locate skills root (tried plugin layout + ~/.claude/skills)"
+  exit 1
+fi
+SKILLS_ROOT="${SKILLS_OVERRIDE:-$SKILLS_ROOT}"
 SKILLS=("voice-agent-realtime" "voice-translate-live" "voice-transcribe-stream")
 FAIL=0
 

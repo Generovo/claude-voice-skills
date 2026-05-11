@@ -1,0 +1,25 @@
+{
+  "name": "claude-voice-skills",
+  "version": "1.0.0",
+  "description": "Three Claude Code skills for building voice agents with OpenAI's May 2026 Realtime API: conversational voicebots (gpt-realtime-2), live translation (gpt-realtime-translate), and streaming transcription (gpt-realtime-whisper). Includes runnable TypeScript and Python examples for SIP/Twilio, WhatsApp, Web/WebRTC, mobile, and meeting bots.",
+  "author": {
+    "name": "Youssef El Yamani",
+    "email": "youssef@generovo.com",
+    "url": "https://github.com/Generovo"
+  },
+  "homepage": "https://github.com/Generovo/claude-voice-skills",
+  "repository": "https://github.com/Generovo/claude-voice-skills",
+  "license": "MIT",
+  "keywords": [
+    "voice",
+    "voicebot",
+    "openai",
+    "realtime",
+    "gpt-realtime-2",
+    "translation",
+    "transcription",
+    "twilio",
+    "whatsapp",
+    "webrtc"
+  ]
+}
