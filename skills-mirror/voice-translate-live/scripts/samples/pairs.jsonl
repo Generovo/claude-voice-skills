@@ -1,0 +1,3 @@
+{"id": "fr-en-1", "source_audio": "samples/audio/fr-greeting.wav", "source_lang": "fr", "target_lang": "en", "reference": "hello and welcome how can I help you today"}
+{"id": "en-fr-1", "source_audio": "samples/audio/en-booking.wav", "source_lang": "en", "target_lang": "fr", "reference": "je voudrais reserver une table pour deux personnes demain soir"}
+{"id": "ar-fr-1", "source_audio": "samples/audio/ar-question.wav", "source_lang": "ar", "target_lang": "fr", "reference": "a quelle heure ouvre votre restaurant"}
