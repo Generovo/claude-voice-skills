@@ -96,7 +96,6 @@ async def realtime_run_case(
     headers = [
         ("Authorization", f"Bearer {api_key}"),
         # [UNCONFIRMED in research] OpenAI-Beta header — sending defensively.
-        ("OpenAI-Beta", "realtime=v1"),
     ]
     transcript_parts: list[str] = []
     function_calls: list[dict[str, str]] = []
@@ -117,10 +116,12 @@ async def realtime_run_case(
                         "audio": {
                             "input": {
                                 "format": {"type": "audio/pcm", "rate": 24000},
-                                "turn_detection": {"type": "none"},
+                                # Live-confirmed 2026-05-11: None disables VAD, {"type":"none"} rejected.
+                                "turn_detection": None,
                             },
                             "output": {
-                                "format": {"type": "audio/pcm"},
+                                # rate REQUIRED on output (live-confirmed).
+                                "format": {"type": "audio/pcm", "rate": 24000},
                                 "voice": "marin",
                             },
                         },

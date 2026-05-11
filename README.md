@@ -60,7 +60,8 @@ Each skill ships:
 - ✅ All Python examples compile (`py_compile`)
 - ✅ All TS examples type-check (`tsc --noEmit`)
 - ✅ 28/28 unit tests pass (TDD-built scripts: latency, eval-prompt, translation-quality, latency-vs-quality)
-- ⚠️ Real API smoke: WebSocket+SSL connection verified. `gpt-realtime-2` exists in `/v1/models` but is **rejected by the Realtime WS endpoint as of 2026-05-11** — see [smoke-findings](docs/research/smoke-findings-2026-05-11.md). Use `OPENAI_MODEL=gpt-realtime` until OpenAI wires v2 to the WS endpoint (estimated 2-8 weeks).
+- ✅ Real API smoke validated against `gpt-realtime-2` : TTFA ~700-800ms sub-secondaire au reasoning level `low`. Set `OPENAI_MODEL=gpt-realtime-2` dans `.env` — les 3 modèles V2 sont **GA dispo immédiatement** (correction de la note initiale — voir [smoke-findings](docs/research/smoke-findings-2026-05-11.md)).
+- ⚠️ Important : NE PAS envoyer le header `OpenAI-Beta: realtime=v1` pour les modèles V2 (ils sont sur la GA API). Tous les scripts/exemples ont été nettoyés.
 
 ## Security notes
 

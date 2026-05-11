@@ -212,7 +212,6 @@ async def open_openai_ws() -> ClientConnection:
         ("Authorization", f"Bearer {os.environ['OPENAI_API_KEY']}"),
         # [UNCONFIRMED] Research file flagged whether this header is still
         # required for the new gpt-realtime-2 endpoint. Sending defensively.
-        ("OpenAI-Beta", "realtime=v1"),
     ]
     log.info("[openai] connecting %s", OPENAI_WS_URL)
     ws = await websockets.connect(

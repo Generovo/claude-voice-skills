@@ -287,7 +287,6 @@ async def _open_openai_ws() -> ClientConnection:
         ("Authorization", f"Bearer {_require_env('OPENAI_API_KEY')}"),
         # [UNCONFIRMED] research flagged whether OpenAI-Beta is still required
         # for gpt-realtime-2. Sending defensively.
-        ("OpenAI-Beta", "realtime=v1"),
     ]
     log.info("[openai] connecting %s", OPENAI_WS_URL)
     ws = await websockets.connect(

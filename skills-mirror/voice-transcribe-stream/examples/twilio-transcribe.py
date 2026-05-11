@@ -337,7 +337,6 @@ async def open_openai_ws() -> ClientConnection:
         # [UNCONFIRMED] Research file flagged whether this header is still
         # required for the new gpt-realtime-whisper endpoint. Sending
         # defensively — harmless if obsolete.
-        ("OpenAI-Beta", "realtime=v1"),
     ]
 
     last_err: Exception | None = None

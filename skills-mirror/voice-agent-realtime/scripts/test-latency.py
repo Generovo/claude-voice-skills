@@ -119,7 +119,6 @@ async def run_one(model: str, level: str, audio_pcm: bytes, system_prompt: str) 
         ("Authorization", f"Bearer {api_key}"),
         # [UNCONFIRMED in research] whether this header is still required for
         # gpt-realtime-2 — sending defensively.
-        ("OpenAI-Beta", "realtime=v1"),
     ]
     async with websockets.connect(url, additional_headers=headers, max_size=None) as ws:
         # 1) Configure session
@@ -135,10 +134,13 @@ async def run_one(model: str, level: str, audio_pcm: bytes, system_prompt: str) 
                         "audio": {
                             "input": {
                                 "format": {"type": "audio/pcm", "rate": 24000},
-                                "turn_detection": {"type": "none"},
+                                # Live-confirmed 2026-05-11: turn_detection=None disables VAD
+                                # for manual commit+response.create. {"type":"none"} is rejected.
+                                "turn_detection": None,
                             },
                             "output": {
-                                "format": {"type": "audio/pcm"},
+                                # rate is REQUIRED on output format (live-confirmed).
+                                "format": {"type": "audio/pcm", "rate": 24000},
                                 "voice": "marin",
                             },
                         },

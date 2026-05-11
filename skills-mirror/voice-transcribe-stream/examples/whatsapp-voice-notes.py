@@ -502,7 +502,6 @@ async def _open_openai_ws() -> ClientConnection:
     headers = [
         ("Authorization", f"Bearer {_require_env('OPENAI_API_KEY')}"),
         # [UNCONFIRMED] header still required? Sent defensively.
-        ("OpenAI-Beta", "realtime=v1"),
     ]
     last_err: Exception | None = None
     for url in (

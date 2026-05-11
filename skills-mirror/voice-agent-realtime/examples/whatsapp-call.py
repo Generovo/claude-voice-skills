@@ -451,7 +451,6 @@ async def _open_openai_ws() -> ClientConnection:
         ("Authorization", f"Bearer {_require_env('OPENAI_API_KEY')}"),
         # [UNCONFIRMED] research flagged whether OpenAI-Beta is still required
         # for gpt-realtime-2. Sending defensively.
-        ("OpenAI-Beta", "realtime=v1"),
     ]
     log.info("[openai] connecting %s", OPENAI_WS_URL)
     ws = await websockets.connect(
@@ -480,12 +479,10 @@ async def _send_session_update(ws: ClientConnection) -> None:
             "audio": {
                 "input": {
                     "format": {"type": "audio/pcm", "rate": OPENAI_RATE},
-                    # TODO: confirm with vendor docs — research flagged
-                    # turn_detection.type "none" as [UNCONFIRMED]. We drive
-                    # the turn manually via commit + response.create anyway,
-                    # so behavior should be unaffected even if the server
-                    # ignores or rejects this value.
-                    "turn_detection": {"type": "none"},
+                    # Live-confirmed 2026-05-11: None disables VAD entirely (manual
+                    # commit + response.create flow). The string "none" is rejected by
+                    # the server (Supported values are: 'server_vad' and 'semantic_vad').
+                    "turn_detection": None,
                 },
                 "output": {
                     "format": {"type": "audio/pcm", "rate": OPENAI_RATE},

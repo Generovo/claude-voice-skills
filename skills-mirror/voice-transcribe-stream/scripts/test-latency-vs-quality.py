@@ -262,7 +262,6 @@ async def transcribe_one(
 
     headers = [
         ("Authorization", f"Bearer {api_key}"),
-        ("OpenAI-Beta", "realtime=v1"),
     ]
     url = WS_URL_PRIMARY.format(model=model)
 
