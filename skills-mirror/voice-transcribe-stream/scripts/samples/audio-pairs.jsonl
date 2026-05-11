@@ -1,0 +1,3 @@
+{"id": "fr-greeting", "audio": "samples/audio/fr-greeting.wav", "reference": "bonjour comment puis-je vous aider aujourd hui"}
+{"id": "en-booking", "audio": "samples/audio/en-booking.wav", "reference": "i would like to book a table for two people tomorrow evening"}
+{"id": "ar-question", "audio": "samples/audio/ar-question.wav", "reference": "fi ay sa3a yaftah maT3amukum"}
